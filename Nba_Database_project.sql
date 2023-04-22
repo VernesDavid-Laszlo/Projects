@@ -30,7 +30,7 @@ SELECT JSON_OBJECT(
   'team_id' VALUE team_id
 ) AS player_json
 FROM Player;
----------------------------------------------------INSERTEK------------------------------------------------------
+---------------------------------------------------INSERTES------------------------------------------------------
 INSERT INTO Player (player_id,player_name, age, Jnumber, height, weight, team_id)
 VALUES (1,'LeBron James', 35, 23, 203, 113, 1);
 
@@ -199,7 +199,7 @@ CREATE TABLE Coach (
 
 
 
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTES-------------------------------------------------------
 INSERT INTO Coach (coached_id,coached_name, experience)
 VALUES (1,'Frank Vogel', 10);
 
@@ -243,7 +243,7 @@ CREATE TABLE Team (
   city VARCHAR(255) references Stadium(city),
   coached_id NUMBER REFERENCES Coach(coached_id)
 );
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTES-------------------------------------------------------
 INSERT INTO Team (team_id,team_name, city, coached_id)
 VALUES (1,'Los Angeles Lakers', 'Los Angeles', 1);
 
@@ -284,7 +284,7 @@ CREATE TABLE Region (
   conference VARCHAR(255),
   team_id NUMBER REFERENCES TEAM(team_id)
 );
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTES-------------------------------------------------------
 INSERT INTO Region (region_id, region_name, conference, team_id)
 VALUES (10,'West', 'Pacific', 1);
 INSERT INTO Region (region_id, region_name, conference, team_id)
@@ -315,7 +315,7 @@ CREATE TABLE Stadium (
   staduim_name VARCHAR2(255),
   stadium_capacity number
 );
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTS-------------------------------------------------------
 INSERT INTO Stadium (city, staduim_name, stadium_capacity)
 VALUES ('Los Angeles', 'Crypto.com Arena', 26700);
 
@@ -356,7 +356,7 @@ CREATE TABLE Season(
   start_date date,
   end_date date
 );
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTS-------------------------------------------------------
 INSERT INTO Season (season_id, start_date, end_date)
 VALUES (1, '01-oct-2022', '22-apr-2022');
 INSERT INTO Season (season_id, start_date, end_date)
@@ -379,7 +379,7 @@ CREATE TABLE Game (
   FOREIGN KEY (season_id) REFERENCES season(season_id)
 );
 
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTS-------------------------------------------------------
 INSERT INTO game (game_id, home_team_id, away_team_id, home_score, away_score, game_date, season_id)
 VALUES (1, 1, 2, 100, 98, '01-jan-2022', 1);
 INSERT INTO game (game_id, home_team_id, away_team_id, home_score, away_score, game_date, season_id)
@@ -413,7 +413,7 @@ CREATE TABLE PlayerStats (
   FOREIGN KEY (player_id) REFERENCES player(player_id),
   FOREIGN KEY (game_id) REFERENCES game(game_id)
 );
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTS-------------------------------------------------------
 INSERT INTO PlayerStats ( player_id, game_id, points, rebounds, assists)
 VALUES ( 1, 2, 25, 10, 5);
 INSERT INTO PlayerStats ( player_id, game_id, points, rebounds, assists)
@@ -454,7 +454,7 @@ CREATE TABLE standings (
   FOREIGN KEY (season_id) REFERENCES season(season_id)
 );
 
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTS-------------------------------------------------------
 INSERT INTO standings (team_id, season_id, wins, losses)
 VALUES (4, 1, 10, 5);
 INSERT INTO standings (team_id, season_id, wins, losses)
@@ -487,7 +487,7 @@ CREATE TABLE ALLSTAR(
   player_selected number,
   FOREIGN KEY (player_id) REFERENCES player(player_id)
 );
--------------------------------------------------------INSERTEK-------------------------------------------------------
+-------------------------------------------------------INSERTS-------------------------------------------------------
 insert into ALLSTAR(player_id,mvp,three_point_contest_winer,player_selected)
 values (4,13,2,23);
 insert into ALLSTAR(player_id,mvp,three_point_contest_winer,player_selected)
@@ -510,13 +510,13 @@ select * from ALLSTAR;
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
---------------------------------------LEKERDEZESEK-------------------------------------------------------------------
+--------------------------------------QUERIES-------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
 
 --1.
--- Megjeleníti az összes játékost, akik 22 évesnél fiatalabbak:
+-- Displays all players who are under 22 years of age:
 EXPLAIN PLAN for
 SELECT player_id,player_name,age,height,team_id
 FROM Player
@@ -526,21 +526,21 @@ AND height<209;
 select * from TABLE ( DBMS_XPLAN.Display );
 
 --2.
--- Megjeleníti az összes csapat nevét és városát, amelyikben van olyan edző, akinek 10 évnél több tapasztalata van:
+-- Displays the name and city of all teams that have a coach with more than 10 years of experience:
 SELECT Team.team_name, Team.city,Coach.experience
 FROM Team
 JOIN Coach ON Team.coached_id = Coach.coached_id
 WHERE Coach.experience > 10;
 
 --3.
--- Megjeleníti az összes olyan meccset és dátumát, amelyekben a 1 es id-val rendelkezo csapat játszott:
+--Displays all matches and their dates in which the team with id 1 has played:
 
 SELECT Game.game_id, Game.game_date
 FROM Game
 WHERE Game.home_team_id = (SELECT team_id FROM Team WHERE team_id = 1);
 
 --4.
--- Megjeleníti az összes olyan csapat nevét, amelyik legalább 3 meccsen játszott:
+-- Displays the names of all teams that have played at least 3 matches:
 SELECT Team.team_name
 FROM Team
 JOIN Game ON Team.team_id = Game.home_team_id OR Team.team_id = Game.away_team_id
@@ -548,7 +548,7 @@ GROUP BY Team.team_name
 HAVING COUNT(Game.game_id) >= 3;
 
 --5.
--- Irja ki az összes olyan csapat nevét és városát, amelyeknek a regio neve "West" es tobb gyozelmuk van mint vereseguk:
+-- List the names and cities of all teams whose region name is "West" and have more wins than losses:
 SELECT t.team_name, t.city
 FROM TEAM t
 INNER JOIN Region r ON t.team_id = r.team_id
@@ -557,28 +557,28 @@ WHERE r.region_name = 'West'
 AND s.wins > s.losses;
 
 --6.
--- Megjeleníti az összes csapat nevét és játékosainak átlagos életkorát:
+-- Displays the names of all teams and the average age of their players:
 SELECT Team.team_name, AVG(Player.age)
 FROM Team
 JOIN Player ON Team.team_id = Player.team_id
 GROUP BY Team.team_name;
 
 --7.
---Megjeleníti az összes olyan csapat nevét, amelyikben nincs 23 évesnél fiatalabb játékos:
+--Displays the names of all teams that do not have a player under the age of 23:
 SELECT Team.team_name FROM Team
 LEFT JOIN Player ON Team.team_id = Player.team_id
 GROUP BY Team.team_name
 HAVING COUNT(CASE WHEN Player.age < 23 THEN 1 END) = 0;
 
 --8.
---Irjuk ki egy bizonyi Id-t tartalmazo csapat jatekosait eletkor szerint csokkeno sorrendben:
+--List the players of a team with a certain identifier in descending order of age:
 SELECT player_name, age
 FROM Player
 WHERE team_id = 5
 order by age desc ;
 
 --9.
---Ird ki az összes olyan régió nevét és konferenciáját, ahol legalább 2 csapat van.
+--List the names and conferences of all regions with at least 2 teams.
 SELECT  r.region_name, r.conference
 FROM Region r
 JOIN Team t
@@ -587,7 +587,7 @@ GROUP BY r.region_name, r.conference
 HAVING COUNT(t.team_id) >= 2;
 
 --10.
---Irasd ki a jatekosok nevet aszerint hogy hanyszor voltak bevalogatva allstarnak
+--Write out the names of the players according to the number of times they were selected as an allstar
 select p.player_name,a.player_selected
 from ALLSTAR a
 join Player p
@@ -596,7 +596,7 @@ group by p.player_name, a.player_selected
 order by a.player_selected desc ;
 
 --11.
---Irasd ki az 5 legtobb pontal rendelkezo jatekost
+--List the first five persons according to the pionts in descendig order
 select p.player_name, s.points
 from PlayerStats s
 join Player p
@@ -606,7 +606,7 @@ order by s.points desc
 fetch first 5 row only ;
 
 --12.
---Irassuk ki csapatok szerint a mezszamokat csokkeo sorrendben:
+--Sort out the jerseys by team in descending order:
 select p.player_id,p.player_name,t.team_name,p.Jnumber
 from Team t
 join Player p on p.team_id = t.TEAM_ID
@@ -614,7 +614,7 @@ group by t.team_name, p.player_id, p.player_name, p.Jnumber
 order by t.team_name desc;
 
 --13.
---Irassuk ki az osszes J- vel kezdodo jatekost novekvo sorrendben
+--List the playeres whom names is starting with J in ascending order
 SELECT player_name
 FROM Player
 WHERE player_name LIKE 'J%'
@@ -622,20 +622,20 @@ order by player_name asc;
 
 
 --14.
--- Milyen csapatok játszottak mérkőzést az elmúlt hónapban?
+--Which teams have played matches in the past month?
 SELECT DISTINCT t.team_name
 FROM Game g
 JOIN Team t ON g.home_team_id = t.team_id OR g.away_team_id = t.team_id
 WHERE g.game_date BETWEEN (CURRENT_DATE - INTERVAL '11' MONTH) AND CURRENT_DATE;
 
 --15.
---Hány mérkőzést játszottak a csapatok az elmúlt évben?
+--How many matches did the teams play last year?
 SELECT COUNT(*)
 FROM Game
 WHERE game_date BETWEEN (CURRENT_DATE - INTERVAL '1' YEAR) AND CURRENT_DATE;
 
 --16.
---Melyik csapatnak van a legtöbb pontja az összes mérkőzésbol?
+--Which team has the most points from all matches?
 SELECT team_name, SUM(home_score + away_score) as total_points
 FROM Team t
 JOIN Game g ON t.team_id = g.home_team_id OR t.team_id = g.away_team_id
@@ -644,7 +644,7 @@ ORDER BY total_points DESC
 fetch first  row only ;
 
 --17.
---Irasd ki a legynagyobb eredmenyet a 2 es team_id val rendelkezo csapatnak, idegenbe  es otthon is.
+--List the highest result for the team with team_id 2, both away and at home.
 (select *
 from GAME
 where home_team_id=2
@@ -658,7 +658,7 @@ order by away_score desc
 fetch first row only )
 
 --17.
---Melyik csapatnak volt a legtöbb győzelme az adott szezonban
+--Which team had the most wins according to a certain season
 SELECT team_name, MAX(wins) as most_wins
 FROM Team
 INNER JOIN standings ON Team.team_id = standings.team_id
@@ -667,14 +667,14 @@ order by Max(wins) desc
 fetch first row only ;
 
 --18
---Ird ki az atlag magassagot es sulyt a New York jatekosai kozul:
+--Find the average height and weight of New York players:
 SELECT AVG(height), AVG(weight)
 FROM Player
 WHERE team_id IN (SELECT team_id FROM Team WHERE city = 'New York')
 
 
 --19
---Ird ki azoknak a jatekosok nevet akik tob mint 20 pontot dobtak a jelenlegi sezonban
+--list the players who scored more than 20 points in the current season
 SELECT DISTINCT player_name
 FROM Player
 JOIN PlayerStats ON Player.player_id = PlayerStats.player_id
@@ -683,7 +683,7 @@ JOIN Season ON Game.season_id = Season.season_id
 WHERE points > 20 AND Season.end_date = (SELECT MAX(end_date) FROM Season)
 
 --20.
---ird ki azokat a jatekosokat akik nek tobb mint 5 reboundjuk van a meccsekben:
+--List the players who have more than 5 rebounds in games:
 SELECT player_name
 FROM Player
 JOIN PlayerStats ON Player.player_id = PlayerStats.player_id
